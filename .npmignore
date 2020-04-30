@@ -1,0 +1,15 @@
+*.log
+.editorconfig
+.env*
+.eslintrc.js
+.github
+.gitattributes
+.nycrc
+.nyc_output
+.vscode
+Makefile
+coverage
+node_modules
+src
+test*
+tsconfig.*
