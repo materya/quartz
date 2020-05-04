@@ -1,7 +1,7 @@
 {
   "name": "@materya/pg-tools",
   "description": "Set of tools to manage a PostgreSQL database for nodejs.",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.0",
   "homepage": "https://github.com/materya/pg-tools",
   "url": "https://github.com/materya/pg-tools",
   "author": "Sylver <sylver@materya.io>",
