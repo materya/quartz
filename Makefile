@@ -47,6 +47,11 @@ endif
 
 .PHONY: prerelease
 prerelease: $(DIST)
+ifneq (,$(findstring n,$(MAKEFLAGS)))
+	+$(PM) run release -- --prerelease $(PRERELEASE_TAG) --dry-run
+	+$(PM) $(PUBLISH_FLAGS) --tag $(PRERELEASE_TAG) --dry-run
+else
 	$(PM) run release -- --prerelease $(PRERELEASE_TAG)
 	git push --follow-tags origin master
-	$(PM) $(PUBLISH_FLAGS) --tag prerelease
+	$(PM) $(PUBLISH_FLAGS) --tag $(PRERELEASE_TAG)
+endif
