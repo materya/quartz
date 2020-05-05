@@ -5,11 +5,17 @@ import * as path from 'path'
 
 import { fs as mfs, promise as mpromise } from '@materya/base'
 import { createPool, sql } from 'slonik'
+
 import type {
   DatabasePoolConnectionType,
 } from 'slonik'
 
 import { argsParser } from '../tools'
+
+// No type support for this package - force a require instead
+// import { raw } from 'slonik-sql-tag-raw'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { raw } = require('slonik-sql-tag-raw')
 
 const rcfile = '.materyarc.json'
 const migrationTableName = '_migrations'
@@ -32,16 +38,16 @@ const initMigrationsTable = async (
   const existsQueryResult = await connection.query(sql`SELECT EXISTS (
     SELECT FROM pg_tables
     WHERE schemaname = 'public'
-    AND   tablename  = ${migrationTableName}
+    AND tablename = ${migrationTableName}
   );`)
 
   const isTableExist = existsQueryResult.rows[0].exists as unknown as boolean
   if (!isTableExist) {
     await connection.query(sql`
       CREATE TABLE ${sql.identifier([migrationTableName])} (
-        id    SERIAL    PRIMARY KEY,
-        name  TEXT      NOT NULL,
-        date  TIMESTAMP DEFAULT current_timestamp
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        date TIMESTAMP DEFAULT current_timestamp
       );
     `)
   }
@@ -90,7 +96,7 @@ const up = async (
     } else {
       const tasks = await import(`${migrationsPath}/${migration}`)
       const task = tasks.up
-      task && await connection.query(task(sql))
+      task && await connection.query(task(sql, raw))
       await createMigration(migration, connection)
       process.stdout.write('DONE\n')
     }
@@ -114,7 +120,7 @@ const down = async (
 
     const tasks = await import(`${migrationsPath}/${migration}`)
     const task = tasks.down
-    task && await connection.query(task(sql))
+    task && await connection.query(task(sql, raw))
     await deleteMigration(migration, connection)
     process.stdout.write('DONE\n')
   })
