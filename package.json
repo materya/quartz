@@ -31,7 +31,8 @@
   "main": "./dist/index.js",
   "types": "./dist/@types/index.d.ts",
   "bin": {
-    "migrate": "./dist/bin/migrate.js"
+    "migrate": "./dist/bin/migrate.js",
+    "seed": "./dist/bin/seed.js"
   },
   "scripts": {
     "build": "run-p build:*",
