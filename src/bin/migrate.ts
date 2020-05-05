@@ -1,36 +1,30 @@
 #!/usr/bin/env node
 
 import * as fs from 'fs'
-import * as path from 'path'
 
-import { fs as mfs, promise as mpromise } from '@materya/base'
+import { promise as mpromise } from '@materya/base'
 import { createPool, sql } from 'slonik'
 
 import type {
   DatabasePoolConnectionType,
 } from 'slonik'
 
-import { argsParser } from '../tools'
+import { argsParser, rc } from '../tools'
 
 // No type support for this package - force a require instead
 // import { raw } from 'slonik-sql-tag-raw'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { raw } = require('slonik-sql-tag-raw')
 
-const rcfile = '.materyarc.json'
 const migrationTableName = '_migrations'
 
-const rcpath = mfs.find.up(process.cwd(), rcfile)
+const defaultName = 'migrations'
+const migrationsPath = `${rc.root}/${rc.config.migrations.path ?? defaultName}`
 
-const config = JSON.parse(fs.readFileSync(rcpath, 'utf8'))
+// const uriString = config.uri ?? process.env.DATABASE_URL
+const uriString = process.env.DATABASE_URL
 
-const root = path.dirname(rcpath)
-
-const migrationsPath = `${root}/${config.migrations.path ?? 'migrations'}`
-
-const { DATABASE_URL } = process.env
-
-if (!DATABASE_URL) throw new Error('Missing env var DATABASE_URL')
+if (!uriString) throw new Error('Missing DB URI config or env variable.')
 
 const initMigrationsTable = async (
   connection: DatabasePoolConnectionType,
@@ -127,7 +121,7 @@ const down = async (
 }
 
 const main = async (): Promise<void> => {
-  const pool = createPool(DATABASE_URL)
+  const pool = createPool(uriString)
   const args = argsParser({ commands: ['up', 'down'] })
   const { command } = args
   const migrations = fs.readdirSync(migrationsPath)
