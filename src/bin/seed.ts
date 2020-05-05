@@ -1,34 +1,28 @@
 #!/usr/bin/env node
 
 import * as fs from 'fs'
-import * as path from 'path'
 
-import { fs as mfs, promise as mpromise } from '@materya/base'
+import { promise as mpromise } from '@materya/base'
 import { createPool, sql } from 'slonik'
 
 import type {
   DatabasePoolConnectionType,
 } from 'slonik'
 
-import { argsParser } from '../tools'
+import { argsParser, rc } from '../tools'
 
 // No type support for this package - force a require instead
 // import { raw } from 'slonik-sql-tag-raw'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { raw } = require('slonik-sql-tag-raw')
 
-const rcfile = '.materyarc.json'
 const seedsTableName = '_seeds'
 
-const rcpath = mfs.find.up(process.cwd(), rcfile)
+const defaultName = 'seeds'
+const seedsPath = `${rc.root}/${rc.config.seeds.path ?? defaultName}`
 
-const config = JSON.parse(fs.readFileSync(rcpath, 'utf8'))
-
-const root = path.dirname(rcpath)
-
-const seedsPath = `${root}/${config.seeds.path ?? 'seeds'}`
-
-const uriString = config.uri ?? process.env.DATABASE_URL
+// const uriString = config.uri ?? process.env.DATABASE_URL
+const uriString = process.env.DATABASE_URL
 
 if (!uriString) throw new Error('Missing DB URI config or env variable.')
 
@@ -89,7 +83,7 @@ const up = async (
   applied: Array<string>,
   connection: DatabasePoolConnectionType,
 ): Promise<void> => {
-  mpromise.sequential(seeds, async (seed: string) => {
+  await mpromise.sequential(seeds, async (seed: string) => {
     process.stdout.write(`processing ${seed} ... `)
     if (applied.includes(seed)) {
       process.stdout.write('SKIP\n')
@@ -108,7 +102,8 @@ const down = async (
   applied: Array<string>,
   connection: DatabasePoolConnectionType,
 ): Promise<void> => {
-  mpromise.sequential(applied.slice().reverse(), async (seed: string) => {
+  const reversed = applied.slice().reverse()
+  await mpromise.sequential(reversed, async (seed: string) => {
     process.stdout.write(`processing ${seed} ... `)
 
     if (!seeds.slice().reverse().includes(seed)) {

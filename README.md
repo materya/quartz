@@ -23,7 +23,7 @@ npm i -D @materya/pg-tools
 
 ### Migrate
 
-A simple migrations & seeds provisioner
+A simple migrations command manager
 
 #### Usage
 
@@ -35,6 +35,22 @@ A simple migrations & seeds provisioner
 * Reverse all migrations
   ```
   npm run migrate -- down
+  ```
+
+### Seed
+
+A simple seeds command manager
+
+#### Usage
+
+* Run all seeds from last applied one
+  ```
+  npm run seed -- up
+  ```
+
+* Reverse all seeds
+  ```
+  npm run seed -- down
   ```
 
 ## License
