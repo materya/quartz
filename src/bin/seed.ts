@@ -90,7 +90,7 @@ const up = async (
     } else {
       const tasks = await import(`${seedsPath}/${seed}`)
       const task = tasks.up
-      task && await connection.query(task(sql, raw))
+      task && await connection.query(await task(sql, raw, connection.query))
       await createSeed(seed, connection)
       process.stdout.write('DONE\n')
     }
