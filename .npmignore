@@ -4,6 +4,7 @@
 .eslintrc.js
 .github
 .gitattributes
+.mocharc.js
 .nycrc
 .nyc_output
 .vscode
