@@ -2,7 +2,7 @@
 
 import * as fs from 'fs'
 
-import { promise as mpromise } from '@materya/base'
+import { promise } from '@materya/carbon'
 import { createPool, sql } from 'slonik'
 
 import type {
@@ -83,7 +83,7 @@ const up = async (
   applied: Array<string>,
   connection: DatabasePoolConnectionType,
 ): Promise<void> => {
-  await mpromise.sequential(seeds, async (seed: string) => {
+  await promise.sequential(seeds, async (seed: string) => {
     process.stdout.write(`processing ${seed} ... `)
     if (applied.includes(seed)) {
       process.stdout.write('SKIP\n')
@@ -103,7 +103,7 @@ const down = async (
   connection: DatabasePoolConnectionType,
 ): Promise<void> => {
   const reversed = applied.slice().reverse()
-  await mpromise.sequential(reversed, async (seed: string) => {
+  await promise.sequential(reversed, async (seed: string) => {
     process.stdout.write(`processing ${seed} ... `)
 
     if (!seeds.slice().reverse().includes(seed)) {

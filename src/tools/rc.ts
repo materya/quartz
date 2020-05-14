@@ -1,11 +1,11 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
-import { fs as mfs } from '@materya/base'
+import { fs as cfs } from '@materya/carbon'
 
 const rcfile = '.materyarc.json'
 
-const rcpath = mfs.find.up(process.cwd(), rcfile)
+const rcpath = cfs.find.up(process.cwd(), rcfile)
 
 const config = JSON.parse(fs.readFileSync(rcpath, 'utf8'))
 

@@ -1,4 +1,4 @@
-import * as materya from '@materya/base'
+import * as c from '@materya/carbon'
 
 /**
  * Error raised when a wrong command has been issue for a CLI or is mandatory
@@ -6,7 +6,7 @@ import * as materya from '@materya/base'
  *
  * @augments BaseError
  */
-export default class CommandError extends materya.errors.BaseError {
+export default class CommandError extends c.errors.BaseError {
   public readonly commands: Array<string>
 
   public readonly command: string | undefined
