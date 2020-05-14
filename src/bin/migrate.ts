@@ -2,7 +2,7 @@
 
 import * as fs from 'fs'
 
-import { promise } from '@materya/carbon'
+import { env, promise } from '@materya/carbon'
 import { createPool, sql } from 'slonik'
 
 import type {
@@ -22,7 +22,9 @@ const defaultName = 'migrations'
 const migrationsPath = `${rc.root}/${rc.config.migrations.path ?? defaultName}`
 
 // const uriString = config.uri ?? process.env.DATABASE_URL
-const uriString = process.env.DATABASE_URL
+const uriString = env.get('NODE_ENV', 'production') === 'production'
+  ? env.get('DATABASE_URL')
+  : `${env.get('DATABASE_URL')}_${env.get('NODE_ENV')}`
 
 if (!uriString) throw new Error('Missing DB URI config or env variable.')
 
