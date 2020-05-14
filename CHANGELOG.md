@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/materya/pg-tools/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2020-05-14)
+
+
+### Features
+
+* migrate & seed depending on  NODE_ENV ([75261ab](https://github.com/materya/pg-tools/commit/75261ab))
+* **deps:** switch to @materya/carbon ([92dfcf8](https://github.com/materya/pg-tools/commit/92dfcf8))
+* clean test environment setup ([9a1ecf4](https://github.com/materya/pg-tools/commit/9a1ecf4))
+
+
+
 ## [1.0.0-alpha.2](https://github.com/materya/pg-tools/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2020-05-06)
 
 
