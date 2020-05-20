@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs'
-
-import { env, promise } from '@materya/carbon'
+import * as carbon from '@materya/carbon'
 import { createPool, sql } from 'slonik'
-
 import type {
   DatabasePoolConnectionType,
 } from 'slonik'
+
+import { MissingSettingError } from '../errors'
 
 import { argsParser, rc } from '../tools'
 
@@ -17,17 +16,21 @@ import { argsParser, rc } from '../tools'
 const { raw } = require('slonik-sql-tag-raw')
 
 const seedsTableName = '_seeds'
+// const seedsPath = `${rc.root}/${rc.config.seeds.path ?? 'seeds'}`
+const seedsPath = `${rc.root}/${rc.seedsPath}`
+const nodeEnv = carbon.env.get('NODE_ENV', 'production')
 
-const defaultName = 'seeds'
-const seedsPath = `${rc.root}/${rc.config.seeds.path ?? defaultName}`
-
-// const uriString = config.uri ?? process.env.DATABASE_URL
-const uriString = env.get('NODE_ENV', 'production') === 'production'
-  ? env.get('DATABASE_URL')
-  : `${env.get('DATABASE_URL')}_${env.get('NODE_ENV')}`
+const connectionUrl = nodeEnv === 'production'
+  ? carbon.env.get('DATABASE_URL')
+  : `${carbon.env.get('DATABASE_URL')}_${nodeEnv}`
 
 
-if (!uriString) throw new Error('Missing DB URI config or env variable.')
+if (!connectionUrl) {
+  throw new MissingSettingError(
+    'settings.connectionUrl',
+    'process.env.DATABASE_URL',
+  )
+}
 
 const initSeedsTable = async (
   connection: DatabasePoolConnectionType,
@@ -62,22 +65,38 @@ const createSeed = async (
 }
 
 const deleteSeed = async (
-  name: string,
+  seed: string,
   connection: DatabasePoolConnectionType,
 ): Promise<void> => {
   await connection.query(sql`
     DELETE FROM ${sql.identifier([seedsTableName])}
-    WHERE name = ${name};
+    WHERE name = ${seed};
   `)
 }
 
-const getSeeds = async (
+const getSeeds = (): Array<string> => {
+  const seeds = carbon.fs.crawl.tree(seedsPath, 1)
+
+  return Object.entries(seeds.directories)
+    .reduce((acc, [directory, children]) => {
+      const allowedNamespaces = ['common', process.env.NODE_ENV]
+      if (!allowedNamespaces.includes(directory)) return acc
+
+      return [
+        ...acc,
+        ...children.files.map(file => `${directory}/${file}`),
+      ]
+    }, seeds.files)
+}
+
+const getAppliedSeeds = async (
   connection: DatabasePoolConnectionType,
 ): Promise<Array<string>> => {
   const seeds = await connection.query(sql`
     SELECT name FROM ${sql.identifier([seedsTableName])};
   `)
   const names = seeds.rows.map(row => row.name)
+
   return names as Array<string>
 }
 
@@ -86,7 +105,7 @@ const up = async (
   applied: Array<string>,
   connection: DatabasePoolConnectionType,
 ): Promise<void> => {
-  await promise.sequential(seeds, async (seed: string) => {
+  await carbon.promise.sequential(seeds, async (seed: string) => {
     process.stdout.write(`processing ${seed} ... `)
     if (applied.includes(seed)) {
       process.stdout.write('SKIP\n')
@@ -106,7 +125,7 @@ const down = async (
   connection: DatabasePoolConnectionType,
 ): Promise<void> => {
   const reversed = applied.slice().reverse()
-  await promise.sequential(reversed, async (seed: string) => {
+  await carbon.promise.sequential(reversed, async (seed: string) => {
     process.stdout.write(`processing ${seed} ... `)
 
     if (!seeds.slice().reverse().includes(seed)) {
@@ -123,10 +142,10 @@ const down = async (
 }
 
 const main = async (): Promise<void> => {
-  const pool = createPool(uriString)
+  const pool = createPool(connectionUrl)
   const args = argsParser({ commands: ['up', 'down'] })
   const { command } = args
-  const seeds = fs.readdirSync(seedsPath)
+  const seeds = getSeeds()
 
   if (seeds.length === 0) {
     process.stdout.write('no seeds found.')
@@ -135,7 +154,7 @@ const main = async (): Promise<void> => {
 
   await pool.connect(async connection => {
     await initSeedsTable(connection)
-    const applied = await getSeeds(connection)
+    const applied = await getAppliedSeeds(connection)
     command === 'up' && await up(seeds, applied, connection)
     command === 'down' && await down(seeds, applied, connection)
   })

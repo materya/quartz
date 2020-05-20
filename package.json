@@ -62,7 +62,7 @@
     ]
   },
   "dependencies": {
-    "@materya/carbon": "^1.6.0",
+    "@materya/carbon": "^1.8.0",
     "@types/slonik": "^22.1.2",
     "debug": "^4.1.1",
     "slonik": "^22.4.9",
