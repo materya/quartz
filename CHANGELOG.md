@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.4](https://github.com/materya/quartz/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2020-05-20)
+
+
+### Features
+
+* seed use per env folder ([02948c6](https://github.com/materya/quartz/commit/02948c690295100f9471fc60ce2a52de3d0996c3))
+
+
+### Bug Fixes
+
+* **deps:** update outdated & vulnerabilities ([dd53854](https://github.com/materya/quartz/commit/dd5385487e1ede15115425f5ae25b8c7cc003871))
+
 ## [1.0.0-alpha.3](https://github.com/materya/quartz/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2020-05-14)
 
 
