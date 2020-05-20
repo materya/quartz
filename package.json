@@ -1,17 +1,17 @@
 {
-  "name": "@materya/pg-tools",
+  "name": "@materya/quartz",
   "description": "Set of tools to manage a PostgreSQL database for nodejs.",
   "version": "1.0.0-alpha.3",
-  "homepage": "https://github.com/materya/pg-tools",
-  "url": "https://github.com/materya/pg-tools",
+  "homepage": "https://github.com/materya/quartz",
+  "url": "https://github.com/materya/quartz",
   "author": "Sylver <sylver@materya.io>",
   "email": "sylver@materya.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/materya/pg-tools.git"
+    "url": "https://github.com/materya/quartz.git"
   },
   "bugs": {
-    "url": "https://github.com/materya/pg-tools/issues"
+    "url": "https://github.com/materya/quartz/issues"
   },
   "license": "GPL-3.0",
   "keywords": [

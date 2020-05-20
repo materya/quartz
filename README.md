@@ -1,4 +1,4 @@
-# @materya/pg-tools
+# @materya/quartz
 
 [![NPM version][npm-image]][npm-url]
 [![Dependency Status][david-image]][david-url]
@@ -16,7 +16,7 @@ based on [Slonik](https://github.com/gajus/slonik).
 ## Install
 
 ```
-npm i -D @materya/pg-tools
+npm i -D @materya/quartz
 ```
 
 ## Tools
@@ -57,13 +57,13 @@ A simple seeds command manager
 
 [GPL-3.0](LICENSE)
 
-[npm-image]: https://img.shields.io/npm/v/@materya/pg-tools/latest?style=flat-square
-[npm-url]: https://npmjs.org/package/@materya/pg-tools
-[david-image]: https://img.shields.io/david/materya/pg-tools?style=flat-square
-[david-url]: https://david-dm.org/materya/pg-tools
-[snyk-image]: https://snyk.io/test/github/materya/pg-tools/badge.svg?style=flat-square
-[snyk-url]: https://app.snyk.io/test/github/materya/pg-tools?targetFile=package.json
-[codecov-image]: https://img.shields.io/codecov/c/github/materya/pg-tools/master.svg?style=flat-square
-[codecov-url]: https://codecov.io/gh/materya/pg-tools
-[license-image]: https://img.shields.io/npm/l/@materya/pg-tools?style=flat-square
+[npm-image]: https://img.shields.io/npm/v/@materya/quartz/latest?style=flat-square
+[npm-url]: https://npmjs.org/package/@materya/quartz
+[david-image]: https://img.shields.io/david/materya/quartz?style=flat-square
+[david-url]: https://david-dm.org/materya/quartz
+[snyk-image]: https://snyk.io/test/github/materya/quartz/badge.svg?style=flat-square
+[snyk-url]: https://app.snyk.io/test/github/materya/quartz?targetFile=package.json
+[codecov-image]: https://img.shields.io/codecov/c/github/materya/quartz/master.svg?style=flat-square
+[codecov-url]: https://codecov.io/gh/materya/quartz
+[license-image]: https://img.shields.io/npm/l/@materya/quartz?style=flat-square
 [license-url]: LICENSE
