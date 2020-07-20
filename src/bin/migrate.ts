@@ -91,8 +91,14 @@ const up = async (
       process.stdout.write('SKIP\n')
     } else {
       const tasks = await import(`${migrationsPath}/${migration}`)
-      const task = tasks.up
-      task && await connection.query(task(sql, raw))
+      const task = tasks.up(sql, raw)
+      if (Array.isArray(task)) {
+        await connection.transaction(async t => (
+          Promise.all(task.map(async query => t.query(query)))
+        ))
+      } else {
+        await connection.query(task)
+      }
       await createMigration(migration, connection)
       process.stdout.write('DONE\n')
     }
@@ -115,8 +121,14 @@ const down = async (
     }
 
     const tasks = await import(`${migrationsPath}/${migration}`)
-    const task = tasks.down
-    task && await connection.query(task(sql, raw))
+    const task = tasks.down(sql, raw)
+    if (Array.isArray(task)) {
+      await connection.transaction(async t => (
+        Promise.all(task.map(async query => t.query(query)))
+      ))
+    } else {
+      await connection.query(task)
+    }
     await deleteMigration(migration, connection)
     process.stdout.write('DONE\n')
   })
