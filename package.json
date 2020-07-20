@@ -1,7 +1,7 @@
 {
   "name": "@materya/quartz",
   "description": "Set of tools to manage a PostgreSQL database for nodejs.",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "homepage": "https://github.com/materya/quartz",
   "url": "https://github.com/materya/quartz",
   "author": "Sylver <sylver@materya.io>",
@@ -35,8 +35,9 @@
     "seed": "./dist/bin/seed.js"
   },
   "scripts": {
-    "build": "run-p build:*",
-    "build:all": "tsc -d",
+    "build": "run-s build:*",
+    "build:compile": "tsc -d",
+    "build:copy": "cp -r ./src/core/types.d.ts ./dist/@types/core/",
     "develop": "tsc-watch --onSuccess \"node ./dist/server.js\"",
     "describe": "npm-scripts-info",
     "release": "standard-version -s",

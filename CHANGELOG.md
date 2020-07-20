@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.5](https://github.com/materya/quartz/compare/v1.0.0-alpha.4...v1.0.0-alpha.5) (2020-07-20)
+
+
+### Features
+
+* add array capacity to migrate actions ([4029cae](https://github.com/materya/quartz/commit/4029caef61bc63c4801a9e4626d3ba8b357156f9))
+
 ## [1.0.0-alpha.4](https://github.com/materya/quartz/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2020-05-20)
 
 
