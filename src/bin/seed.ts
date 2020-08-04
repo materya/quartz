@@ -135,7 +135,7 @@ const down = async (
 
     const tasks = await import(`${seedsPath}/${seed}`)
     const task = tasks.down
-    task && await connection.query(task(sql, raw))
+    task && await connection.query(await task(sql, raw, connection.query))
     await deleteSeed(seed, connection)
     process.stdout.write('DONE\n')
   })
