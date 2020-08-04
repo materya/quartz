@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.6](https://github.com/materya/quartz/compare/v1.0.0-alpha.5...v1.0.0-alpha.6) (2020-08-04)
+
+
+### Bug Fixes
+
+* **deps:** vulnerabilities ([4d198e9](https://github.com/materya/quartz/commit/4d198e94ecbebf5eac7d9bfa7f52e64381db4717))
+* **seeds:** add query arg to `down` method ([dc4ee33](https://github.com/materya/quartz/commit/dc4ee33bc345c7a9af22046516a1b168ac2c4d7e))
+
 ## [1.0.0-alpha.5](https://github.com/materya/quartz/compare/v1.0.0-alpha.4...v1.0.0-alpha.5) (2020-07-20)
 
 
