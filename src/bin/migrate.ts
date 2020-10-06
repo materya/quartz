@@ -3,6 +3,7 @@
 import * as fs from 'fs'
 
 import { env, promise } from '@materya/carbon'
+import debug from 'debug'
 import { createPool, sql } from 'slonik'
 
 import type {
@@ -15,6 +16,8 @@ import { argsParser, rc } from '../tools'
 // import { raw } from 'slonik-sql-tag-raw'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { raw } = require('slonik-sql-tag-raw')
+
+const log = debug('materya:quartz:migrate')
 
 const migrationTableName = '_migrations'
 
@@ -31,21 +34,25 @@ if (!uriString) throw new Error('Missing DB URI config or env variable.')
 const initMigrationsTable = async (
   connection: DatabasePoolConnectionType,
 ): Promise<void> => {
-  const existsQueryResult = await connection.query(sql`SELECT EXISTS (
-    SELECT FROM pg_tables
-    WHERE schemaname = 'public'
-    AND tablename = ${migrationTableName}
-  );`)
+  try {
+    const existsQueryResult = await connection.query(sql`SELECT EXISTS (
+      SELECT FROM pg_tables
+      WHERE schemaname = 'public'
+      AND tablename = ${migrationTableName}
+    );`)
 
-  const isTableExist = existsQueryResult.rows[0].exists as unknown as boolean
-  if (!isTableExist) {
-    await connection.query(sql`
-      CREATE TABLE ${sql.identifier([migrationTableName])} (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        date TIMESTAMP DEFAULT current_timestamp
-      );
-    `)
+    const isTableExist = existsQueryResult.rows[0].exists as unknown as boolean
+    if (!isTableExist) {
+      await connection.query(sql`
+        CREATE TABLE ${sql.identifier([migrationTableName])} (
+          id SERIAL PRIMARY KEY,
+          name TEXT NOT NULL,
+          date TIMESTAMP DEFAULT current_timestamp
+        );
+      `)
+    }
+  } catch (error) {
+    log('unable to create `_migrations` table: ', error)
   }
 }
 
@@ -53,21 +60,29 @@ const createMigration = async (
   name: string,
   connection: DatabasePoolConnectionType,
 ): Promise<void> => {
-  await connection.query(sql`
-    INSERT INTO ${sql.identifier([migrationTableName])} (
-      name
-    ) VALUES (${name});
-  `)
+  try {
+    await connection.query(sql`
+      INSERT INTO ${sql.identifier([migrationTableName])}
+      (name)
+      VALUES (${name});
+    `)
+  } catch (error) {
+    log(`unable to insert migration ${name}: `, error)
+  }
 }
 
 const deleteMigration = async (
   name: string,
   connection: DatabasePoolConnectionType,
 ): Promise<void> => {
-  await connection.query(sql`
-    DELETE FROM ${sql.identifier([migrationTableName])}
-    WHERE name = ${name};
-  `)
+  try {
+    await connection.query(sql`
+      DELETE FROM ${sql.identifier([migrationTableName])}
+      WHERE name = ${name};
+    `)
+  } catch (error) {
+    log(`unable to delete migration ${name}: `, error)
+  }
 }
 
 const getMigrations = async (
@@ -135,22 +150,26 @@ const down = async (
 }
 
 const main = async (): Promise<void> => {
-  const pool = createPool(uriString)
-  const args = argsParser({ commands: ['up', 'down'] })
-  const { command } = args
-  const migrations = fs.readdirSync(migrationsPath)
+  try {
+    const pool = createPool(uriString)
+    const args = argsParser({ commands: ['up', 'down'] })
+    const { command } = args
+    const migrations = fs.readdirSync(migrationsPath)
 
-  if (migrations.length === 0) {
-    process.stdout.write('no migrations found.')
-    return
+    if (migrations.length === 0) {
+      process.stdout.write('no migrations found.')
+      return
+    }
+
+    await pool.connect(async connection => {
+      await initMigrationsTable(connection)
+      const applied = await getMigrations(connection)
+      command === 'up' && await up(migrations, applied, connection)
+      command === 'down' && await down(migrations, applied, connection)
+    })
+  } catch (error) {
+    log('unable to process migration: ', error)
   }
-
-  await pool.connect(async connection => {
-    await initMigrationsTable(connection)
-    const appliedMigrations = await getMigrations(connection)
-    command === 'up' && await up(migrations, appliedMigrations, connection)
-    command === 'down' && await down(migrations, appliedMigrations, connection)
-  })
 }
 
 if (require.main === module) {

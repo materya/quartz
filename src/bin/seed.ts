@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 import * as carbon from '@materya/carbon'
+import debug from 'debug'
 import { createPool, sql } from 'slonik'
+
 import type {
   DatabasePoolConnectionType,
 } from 'slonik'
@@ -14,6 +16,8 @@ import { argsParser, rc } from '../tools'
 // import { raw } from 'slonik-sql-tag-raw'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { raw } = require('slonik-sql-tag-raw')
+
+const log = debug('materya:quartz:migrate')
 
 const seedsTableName = '_seeds'
 // const seedsPath = `${rc.root}/${rc.config.seeds.path ?? 'seeds'}`
@@ -142,22 +146,26 @@ const down = async (
 }
 
 const main = async (): Promise<void> => {
-  const pool = createPool(connectionUrl)
-  const args = argsParser({ commands: ['up', 'down'] })
-  const { command } = args
-  const seeds = getSeeds()
+  try {
+    const pool = createPool(connectionUrl)
+    const args = argsParser({ commands: ['up', 'down'] })
+    const { command } = args
+    const seeds = getSeeds()
 
-  if (seeds.length === 0) {
-    process.stdout.write('no seeds found.')
-    return
+    if (seeds.length === 0) {
+      process.stdout.write('no seeds found.')
+      return
+    }
+
+    await pool.connect(async connection => {
+      await initSeedsTable(connection)
+      const applied = await getAppliedSeeds(connection)
+      command === 'up' && await up(seeds, applied, connection)
+      command === 'down' && await down(seeds, applied, connection)
+    })
+  } catch (error) {
+    log('unable to process seed: ', error)
   }
-
-  await pool.connect(async connection => {
-    await initSeedsTable(connection)
-    const applied = await getAppliedSeeds(connection)
-    command === 'up' && await up(seeds, applied, connection)
-    command === 'down' && await down(seeds, applied, connection)
-  })
 }
 
 if (require.main === module) {
