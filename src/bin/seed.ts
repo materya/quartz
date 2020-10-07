@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import * as carbon from '@materya/carbon'
-import debug from 'debug'
 import { createPool, sql } from 'slonik'
 
 import type {
@@ -16,8 +15,6 @@ import { argsParser, rc } from '../tools'
 // import { raw } from 'slonik-sql-tag-raw'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { raw } = require('slonik-sql-tag-raw')
-
-const log = debug('materya:quartz:migrate')
 
 const seedsTableName = '_seeds'
 // const seedsPath = `${rc.root}/${rc.config.seeds.path ?? 'seeds'}`
@@ -111,14 +108,21 @@ const up = async (
 ): Promise<void> => {
   await carbon.promise.sequential(seeds, async (seed: string) => {
     process.stdout.write(`processing ${seed} ... `)
-    if (applied.includes(seed)) {
-      process.stdout.write('SKIP\n')
-    } else {
-      const tasks = await import(`${seedsPath}/${seed}`)
-      const task = tasks.up
-      task && await connection.query(await task(sql, raw, connection.query))
-      await createSeed(seed, connection)
-      process.stdout.write('DONE\n')
+
+    try {
+      if (applied.includes(seed)) {
+        process.stdout.write('SKIP\n')
+      } else {
+        const tasks = await import(`${seedsPath}/${seed}`)
+        const task = tasks.up
+        task && await connection.query(await task(sql, raw, connection.query))
+        await createSeed(seed, connection)
+        process.stdout.write('DONE\n')
+      }
+    } catch (error) {
+      process.stdout.write('ERROR\n')
+      process.stderr.write(error)
+      process.exit(1)
     }
   })
 }
@@ -132,16 +136,22 @@ const down = async (
   await carbon.promise.sequential(reversed, async (seed: string) => {
     process.stdout.write(`processing ${seed} ... `)
 
-    if (!seeds.slice().reverse().includes(seed)) {
-      process.stdout.write('ERROR\n')
-      throw new Error(`referenced applied seed ${seed} not found.`)
-    }
+    try {
+      if (!seeds.slice().reverse().includes(seed)) {
+        process.stdout.write('ERROR\n')
+        throw new Error(`referenced applied seed ${seed} not found.`)
+      }
 
-    const tasks = await import(`${seedsPath}/${seed}`)
-    const task = tasks.down
-    task && await connection.query(await task(sql, raw, connection.query))
-    await deleteSeed(seed, connection)
-    process.stdout.write('DONE\n')
+      const tasks = await import(`${seedsPath}/${seed}`)
+      const task = tasks.down
+      task && await connection.query(await task(sql, raw, connection.query))
+      await deleteSeed(seed, connection)
+      process.stdout.write('DONE\n')
+    } catch (error) {
+      process.stdout.write('ERROR\n')
+      process.stderr.write(error)
+      process.exit(1)
+    }
   })
 }
 
@@ -164,7 +174,9 @@ const main = async (): Promise<void> => {
       command === 'down' && await down(seeds, applied, connection)
     })
   } catch (error) {
-    log('unable to process seed: ', error)
+    process.stdout.write('\nExecution error.\n')
+    process.stderr.write(error)
+    process.exit(1)
   }
 }
 

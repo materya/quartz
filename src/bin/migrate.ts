@@ -3,7 +3,6 @@
 import * as fs from 'fs'
 
 import { env, promise } from '@materya/carbon'
-import debug from 'debug'
 import { createPool, sql } from 'slonik'
 
 import type {
@@ -16,8 +15,6 @@ import { argsParser, rc } from '../tools'
 // import { raw } from 'slonik-sql-tag-raw'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { raw } = require('slonik-sql-tag-raw')
-
-const log = debug('materya:quartz:migrate')
 
 const migrationTableName = '_migrations'
 
@@ -52,7 +49,7 @@ const initMigrationsTable = async (
       `)
     }
   } catch (error) {
-    log('unable to create `_migrations` table: ', error)
+    process.stderr.write('unable to create `_migrations` table: ', error)
   }
 }
 
@@ -67,7 +64,7 @@ const createMigration = async (
       VALUES (${name});
     `)
   } catch (error) {
-    log(`unable to insert migration ${name}: `, error)
+    process.stderr.write(`unable to insert migration ${name}: `, error)
   }
 }
 
@@ -81,7 +78,7 @@ const deleteMigration = async (
       WHERE name = ${name};
     `)
   } catch (error) {
-    log(`unable to delete migration ${name}: `, error)
+    process.stderr.write(`unable to delete migration ${name}: `, error)
   }
 }
 
@@ -102,20 +99,26 @@ const up = async (
 ): Promise<void> => {
   await promise.sequential(migrations, async (migration: string) => {
     process.stdout.write(`processing ${migration} ... `)
-    if (appliedMigrations.includes(migration)) {
-      process.stdout.write('SKIP\n')
-    } else {
-      const tasks = await import(`${migrationsPath}/${migration}`)
-      const task = tasks.up(sql, raw)
-      if (Array.isArray(task)) {
-        await connection.transaction(async t => (
-          Promise.all(task.map(async query => t.query(query)))
-        ))
+    try {
+      if (appliedMigrations.includes(migration)) {
+        process.stdout.write('SKIP\n')
       } else {
-        await connection.query(task)
+        const tasks = await import(`${migrationsPath}/${migration}`)
+        const task = tasks.up(sql, raw)
+        if (Array.isArray(task)) {
+          await connection.transaction(async t => (
+            Promise.all(task.map(async query => t.query(query)))
+          ))
+        } else {
+          await connection.query(task)
+        }
+        await createMigration(migration, connection)
+        process.stdout.write('DONE\n')
       }
-      await createMigration(migration, connection)
-      process.stdout.write('DONE\n')
+    } catch (error) {
+      process.stdout.write('ERROR\n')
+      process.stderr.write(error)
+      process.exit(1)
     }
   })
 }
@@ -125,27 +128,33 @@ const down = async (
   appliedMigrations: Array<string>,
   connection: DatabasePoolConnectionType,
 ): Promise<void> => {
-  const rMigrations = migrations.slice().reverse()
-  const rAppliedMigrations = appliedMigrations.slice().reverse()
-  await promise.sequential(rAppliedMigrations, async (migration: string) => {
+  const revMigrations = migrations.slice().reverse()
+  const revAppliedMigrations = appliedMigrations.slice().reverse()
+  await promise.sequential(revAppliedMigrations, async (migration: string) => {
     process.stdout.write(`processing ${migration} ... `)
 
-    if (!rMigrations.includes(migration)) {
-      process.stdout.write('ERROR\n')
-      throw new Error(`referenced applied migration ${migration} not found.`)
-    }
+    try {
+      if (!revMigrations.includes(migration)) {
+        process.stdout.write('ERROR\n')
+        throw new Error(`referenced applied migration ${migration} not found.`)
+      }
 
-    const tasks = await import(`${migrationsPath}/${migration}`)
-    const task = tasks.down(sql, raw)
-    if (Array.isArray(task)) {
-      await connection.transaction(async t => (
-        Promise.all(task.map(async query => t.query(query)))
-      ))
-    } else {
-      await connection.query(task)
+      const tasks = await import(`${migrationsPath}/${migration}`)
+      const task = tasks.down(sql, raw)
+      if (Array.isArray(task)) {
+        await connection.transaction(async t => (
+          Promise.all(task.map(async query => t.query(query)))
+        ))
+      } else {
+        await connection.query(task)
+      }
+      await deleteMigration(migration, connection)
+      process.stdout.write('DONE\n')
+    } catch (error) {
+      process.stdout.write('ERROR\n')
+      process.stderr.write(error)
+      process.exit(1)
     }
-    await deleteMigration(migration, connection)
-    process.stdout.write('DONE\n')
   })
 }
 
@@ -168,7 +177,9 @@ const main = async (): Promise<void> => {
       command === 'down' && await down(migrations, applied, connection)
     })
   } catch (error) {
-    log('unable to process migration: ', error)
+    process.stdout.write('\nExecution error.\n')
+    process.stderr.write(error)
+    process.exit(1)
   }
 }
 
