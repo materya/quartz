@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.8](https://github.com/materya/quartz/compare/v1.0.0-alpha.7...v1.0.0-alpha.8) (2020-10-07)
+
+
+### Features
+
+* **bin:** handle errors properly for a CLI usage ([8faaa2f](https://github.com/materya/quartz/commit/8faaa2f4876f6549c2f293ac2cb6810279df9606))
+
 ## [1.0.0-alpha.7](https://github.com/materya/quartz/compare/v1.0.0-alpha.6...v1.0.0-alpha.7) (2020-10-06)
 
 
