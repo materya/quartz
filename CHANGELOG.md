@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.9](https://github.com/materya/quartz/compare/v1.0.0-alpha.8...v1.0.0-alpha.9) (2020-10-07)
+
+
+### Bug Fixes
+
+* **bin:** UnhandledPromiseRejectionWarning error ([af23efb](https://github.com/materya/quartz/commit/af23efbbde668aa3f125a006afc7cdde84dc1409))
+
 ## [1.0.0-alpha.8](https://github.com/materya/quartz/compare/v1.0.0-alpha.7...v1.0.0-alpha.8) (2020-10-07)
 
 
