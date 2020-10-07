@@ -173,7 +173,6 @@ const main = async (): Promise<void> => {
     })
   } catch (error) {
     process.stdout.write('\nExecution error:\n')
-    process.stderr.write(error.message)
     process.stderr.write(error.stack)
     process.exit(1)
   }

@@ -104,7 +104,7 @@ const up = async (
         process.stdout.write('SKIP\n')
       } else {
         const tasks = await import(`${migrationsPath}/${migration}`)
-        const task = tasks.up(sql, raw)
+        const task = tasks.up(sql, raw, connection.query)
         if (Array.isArray(task)) {
           await connection.transaction(async t => (
             Promise.all(task.map(async query => t.query(query)))
@@ -139,7 +139,7 @@ const down = async (
       }
 
       const tasks = await import(`${migrationsPath}/${migration}`)
-      const task = tasks.down(sql, raw)
+      const task = tasks.down(sql, raw, connection.query)
       if (Array.isArray(task)) {
         await connection.transaction(async t => (
           Promise.all(task.map(async query => t.query(query)))
@@ -176,7 +176,6 @@ const main = async (): Promise<void> => {
     })
   } catch (error) {
     process.stdout.write('\nExecution error:\n')
-    process.stderr.write(error.message)
     process.stderr.write(error.stack)
     process.exit(1)
   }
