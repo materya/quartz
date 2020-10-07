@@ -117,8 +117,7 @@ const up = async (
       }
     } catch (error) {
       process.stdout.write('ERROR\n')
-      process.stderr.write(error)
-      process.exit(1)
+      throw error
     }
   })
 }
@@ -152,8 +151,7 @@ const down = async (
       process.stdout.write('DONE\n')
     } catch (error) {
       process.stdout.write('ERROR\n')
-      process.stderr.write(error)
-      process.exit(1)
+      throw error
     }
   })
 }
@@ -177,8 +175,9 @@ const main = async (): Promise<void> => {
       command === 'down' && await down(migrations, applied, connection)
     })
   } catch (error) {
-    process.stdout.write('\nExecution error.\n')
-    process.stderr.write(error)
+    process.stdout.write('\nExecution error:\n')
+    process.stderr.write(error.message)
+    process.stderr.write(error.stack)
     process.exit(1)
   }
 }
