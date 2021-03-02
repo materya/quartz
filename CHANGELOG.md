@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.11](https://github.com/materya/quartz/compare/v1.0.0-alpha.10...v1.0.0-alpha.11) (2021-03-02)
+
+
+### Bug Fixes
+
+* **bin:** error display newline ([6ed9fdf](https://github.com/materya/quartz/commit/6ed9fdf287a52c280d46bb8c1c1491e87681d8a0))
+* **bin:** missing await on task for migration ([fa17c46](https://github.com/materya/quartz/commit/fa17c46e9e7c31a75f6321b9889d783c0609078f))
+
 ## [1.0.0-alpha.10](https://github.com/materya/quartz/compare/v1.0.0-alpha.9...v1.0.0-alpha.10) (2020-10-07)
 
 
