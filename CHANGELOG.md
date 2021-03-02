@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.12](https://github.com/materya/quartz/compare/v1.0.0-alpha.11...v1.0.0-alpha.12) (2021-03-02)
+
+
+### Bug Fixes
+
+* **bin:** await task properly to detect if array is returned ([d5b172f](https://github.com/materya/quartz/commit/d5b172f4a7a1c9630564e440b7e6ae19695f5329))
+
 ## [1.0.0-alpha.11](https://github.com/materya/quartz/compare/v1.0.0-alpha.10...v1.0.0-alpha.11) (2021-03-02)
 
 
