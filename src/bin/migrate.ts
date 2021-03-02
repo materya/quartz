@@ -107,10 +107,10 @@ const up = async (
         const task = tasks.up(sql, raw, connection.query)
         if (Array.isArray(task)) {
           await connection.transaction(async t => (
-            Promise.all(task.map(async query => t.query(query)))
+            Promise.all(task.map(async query => t.query(await query)))
           ))
         } else {
-          await connection.query(task)
+          await connection.query(await task)
         }
         await createMigration(migration, connection)
         process.stdout.write('DONE\n')
@@ -142,10 +142,10 @@ const down = async (
       const task = tasks.down(sql, raw, connection.query)
       if (Array.isArray(task)) {
         await connection.transaction(async t => (
-          Promise.all(task.map(async query => t.query(query)))
+          Promise.all(task.map(async query => t.query(await query)))
         ))
       } else {
-        await connection.query(task)
+        await connection.query(await task)
       }
       await deleteMigration(migration, connection)
       process.stdout.write('DONE\n')
