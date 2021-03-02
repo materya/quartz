@@ -104,13 +104,13 @@ const up = async (
         process.stdout.write('SKIP\n')
       } else {
         const tasks = await import(`${migrationsPath}/${migration}`)
-        const task = tasks.up(sql, raw, connection.query)
-        if (Array.isArray(task)) {
+        const taskRet = await tasks.up(sql, raw, connection.query)
+        if (Array.isArray(taskRet)) {
           await connection.transaction(async t => (
-            Promise.all(task.map(async query => t.query(await query)))
+            Promise.all(taskRet.map(async query => t.query(await query)))
           ))
         } else {
-          await connection.query(await task)
+          await connection.query(taskRet)
         }
         await createMigration(migration, connection)
         process.stdout.write('DONE\n')
