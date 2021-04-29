@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.13](https://github.com/materya/quartz/compare/v1.0.0-alpha.12...v1.0.0-alpha.13) (2021-04-29)
+
+
+### Bug Fixes
+
+* **bin:** down processing issue ([4ec5cbe](https://github.com/materya/quartz/commit/4ec5cbeda4665c069dbfed19b9829a99a45f67cf))
+
 ## [1.0.0-alpha.12](https://github.com/materya/quartz/compare/v1.0.0-alpha.11...v1.0.0-alpha.12) (2021-03-02)
 
 
