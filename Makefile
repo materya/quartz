@@ -41,7 +41,7 @@ ifneq (,$(findstring n,$(MAKEFLAGS)))
 	+$(PM) $(PUBLISH_FLAGS) --dry-run
 else
 	$(PM) run release
-	git push --follow-tags origin master
+	git push --follow-tags
 	$(PM) $(PUBLISH_FLAGS)
 endif
 
@@ -52,6 +52,6 @@ ifneq (,$(findstring n,$(MAKEFLAGS)))
 	+$(PM) $(PUBLISH_FLAGS) --tag $(PRERELEASE_TAG) --dry-run
 else
 	$(PM) run release -- --prerelease $(PRERELEASE_TAG)
-	git push --follow-tags origin master
+	git push --follow-tags
 	$(PM) $(PUBLISH_FLAGS) --tag $(PRERELEASE_TAG)
 endif

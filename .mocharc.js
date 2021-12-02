@@ -1,7 +1,9 @@
 module.exports = {
   require: [
-    'ts-node/register',
+    'ts-node/register/transpile-only',
     'tsconfig-paths/register',
+  ],
+  file: [
     './test/mocha.env.ts',
     './test/mocha.setup.ts',
   ],

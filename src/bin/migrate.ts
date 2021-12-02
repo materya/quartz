@@ -49,7 +49,7 @@ const initMigrationsTable = async (
       `)
     }
   } catch (error) {
-    process.stderr.write('unable to create `_migrations` table: ', error)
+    process.stderr.write(`unable to create \`_migrations\` table: ${error}`)
   }
 }
 
@@ -64,7 +64,7 @@ const createMigration = async (
       VALUES (${name});
     `)
   } catch (error) {
-    process.stderr.write(`unable to insert migration ${name}: `, error)
+    process.stderr.write(`unable to insert migration ${name}: ${error}`)
   }
 }
 
@@ -78,7 +78,7 @@ const deleteMigration = async (
       WHERE name = ${name};
     `)
   } catch (error) {
-    process.stderr.write(`unable to delete migration ${name}: `, error)
+    process.stderr.write(`unable to delete migration ${name}: ${error}`)
   }
 }
 
@@ -175,7 +175,7 @@ const main = async (): Promise<void> => {
     })
   } catch (error) {
     process.stdout.write('\nExecution error:\n')
-    process.stderr.write(`${error.stack}\n`)
+    process.stderr.write(`${error instanceof Error ? error.stack : error}\n`)
     process.exit(1)
   }
 }

@@ -25,7 +25,6 @@ const connectionUrl = nodeEnv === 'production'
   ? carbon.env.get('DATABASE_URL')
   : `${carbon.env.get('DATABASE_URL')}_${nodeEnv}`
 
-
 if (!connectionUrl) {
   throw new MissingSettingError(
     'settings.connectionUrl',
@@ -173,7 +172,7 @@ const main = async (): Promise<void> => {
     })
   } catch (error) {
     process.stdout.write('\nExecution error:\n')
-    process.stderr.write(`${error.stack}\n`)
+    process.stderr.write(`${error instanceof Error ? error.stack : error}\n`)
     process.exit(1)
   }
 }

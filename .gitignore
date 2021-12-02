@@ -4,6 +4,7 @@
 # Explicit includes
 !.devcontainer
 !.github
+!.husky
 !.vscode
 !@types
 !src
