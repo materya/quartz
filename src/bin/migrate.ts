@@ -6,7 +6,7 @@ import { env, promise } from '@materya/carbon'
 import { createPool, sql } from 'slonik'
 
 import type {
-  DatabasePoolConnectionType,
+  DatabasePoolConnection,
 } from 'slonik'
 
 import { argsParser, rc } from '../tools'
@@ -29,7 +29,7 @@ const uriString = env.get('NODE_ENV', 'production') === 'production'
 if (!uriString) throw new Error('Missing DB URI config or env variable.')
 
 const initMigrationsTable = async (
-  connection: DatabasePoolConnectionType,
+  connection: DatabasePoolConnection,
 ): Promise<void> => {
   try {
     const existsQueryResult = await connection.query(sql`SELECT EXISTS (
@@ -55,7 +55,7 @@ const initMigrationsTable = async (
 
 const createMigration = async (
   name: string,
-  connection: DatabasePoolConnectionType,
+  connection: DatabasePoolConnection,
 ): Promise<void> => {
   try {
     await connection.query(sql`
@@ -70,7 +70,7 @@ const createMigration = async (
 
 const deleteMigration = async (
   name: string,
-  connection: DatabasePoolConnectionType,
+  connection: DatabasePoolConnection,
 ): Promise<void> => {
   try {
     await connection.query(sql`
@@ -83,7 +83,7 @@ const deleteMigration = async (
 }
 
 const getMigrations = async (
-  connection: DatabasePoolConnectionType,
+  connection: DatabasePoolConnection,
 ): Promise<Array<string>> => {
   const migrations = await connection.query(sql`
     SELECT name FROM ${sql.identifier([migrationTableName])};
@@ -95,7 +95,7 @@ const getMigrations = async (
 const processMigration = async (
   direction: 'up' | 'down',
   migration: string,
-  connection: DatabasePoolConnectionType,
+  connection: DatabasePoolConnection,
 ): Promise<void> => {
   const tasks = await import(migration)
   const task = await tasks[direction](sql, raw, connection.query)
@@ -111,7 +111,7 @@ const processMigration = async (
 const up = async (
   migrations: Array<string>,
   appliedMigrations: Array<string>,
-  conn: DatabasePoolConnectionType,
+  conn: DatabasePoolConnection,
 ): Promise<void> => {
   await promise.sequential(migrations, async (migration: string) => {
     process.stdout.write(`processing ${migration} ... `)
@@ -133,7 +133,7 @@ const up = async (
 const down = async (
   migrations: Array<string>,
   appliedMigrations: Array<string>,
-  conn: DatabasePoolConnectionType,
+  conn: DatabasePoolConnection,
 ): Promise<void> => {
   const revMigrations = migrations.slice().reverse()
   const revAppliedMigrations = appliedMigrations.slice().reverse()
@@ -157,7 +157,7 @@ const down = async (
 
 const main = async (): Promise<void> => {
   try {
-    const pool = createPool(uriString)
+    const pool = await createPool(uriString)
     const args = argsParser({ commands: ['up', 'down'] })
     const { command } = args
     const migrations = fs.readdirSync(migrationsPath)

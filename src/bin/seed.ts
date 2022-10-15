@@ -4,7 +4,7 @@ import * as carbon from '@materya/carbon'
 import { createPool, sql } from 'slonik'
 
 import type {
-  DatabasePoolConnectionType,
+  DatabasePoolConnection,
 } from 'slonik'
 
 import { MissingSettingError } from '../errors'
@@ -33,7 +33,7 @@ if (!connectionUrl) {
 }
 
 const initSeedsTable = async (
-  connection: DatabasePoolConnectionType,
+  connection: DatabasePoolConnection,
 ): Promise<void> => {
   const existsQueryResult = await connection.query(sql`SELECT EXISTS (
     SELECT FROM pg_tables
@@ -55,7 +55,7 @@ const initSeedsTable = async (
 
 const createSeed = async (
   name: string,
-  connection: DatabasePoolConnectionType,
+  connection: DatabasePoolConnection,
 ): Promise<void> => {
   await connection.query(sql`
     INSERT INTO ${sql.identifier([seedsTableName])} (
@@ -66,7 +66,7 @@ const createSeed = async (
 
 const deleteSeed = async (
   seed: string,
-  connection: DatabasePoolConnectionType,
+  connection: DatabasePoolConnection,
 ): Promise<void> => {
   await connection.query(sql`
     DELETE FROM ${sql.identifier([seedsTableName])}
@@ -90,7 +90,7 @@ const getSeeds = (): Array<string> => {
 }
 
 const getAppliedSeeds = async (
-  connection: DatabasePoolConnectionType,
+  connection: DatabasePoolConnection,
 ): Promise<Array<string>> => {
   const seeds = await connection.query(sql`
     SELECT name FROM ${sql.identifier([seedsTableName])};
@@ -103,7 +103,7 @@ const getAppliedSeeds = async (
 const up = async (
   seeds: Array<string>,
   applied: Array<string>,
-  connection: DatabasePoolConnectionType,
+  connection: DatabasePoolConnection,
 ): Promise<void> => {
   await carbon.promise.sequential(seeds, async (seed: string) => {
     process.stdout.write(`processing ${seed} ... `)
@@ -128,7 +128,7 @@ const up = async (
 const down = async (
   seeds: Array<string>,
   applied: Array<string>,
-  connection: DatabasePoolConnectionType,
+  connection: DatabasePoolConnection,
 ): Promise<void> => {
   const reversed = applied.slice().reverse()
   await carbon.promise.sequential(reversed, async (seed: string) => {
@@ -154,7 +154,7 @@ const down = async (
 
 const main = async (): Promise<void> => {
   try {
-    const pool = createPool(connectionUrl)
+    const pool = await createPool(connectionUrl)
     const args = argsParser({ commands: ['up', 'down'] })
     const { command } = args
     const seeds = getSeeds()
