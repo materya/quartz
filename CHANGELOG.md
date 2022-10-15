@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.15](https://github.com/materya/quartz/compare/v1.0.0-alpha.14...v1.0.0-alpha.15) (2022-10-15)
+
+
+### Features
+
+* **bin:** remove `DATABASE_URL` manipulation ([a7aae25](https://github.com/materya/quartz/commit/a7aae25036b738ed4a4f4b7bf16f36efe3ec9b63))
+
 ## [1.0.0-alpha.14](https://github.com/materya/quartz/compare/v1.0.0-alpha.13...v1.0.0-alpha.14) (2021-12-02)
 
 ## [1.0.0-alpha.13](https://github.com/materya/quartz/compare/v1.0.0-alpha.12...v1.0.0-alpha.13) (2021-04-29)
