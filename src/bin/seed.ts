@@ -19,15 +19,12 @@ const { raw } = require('slonik-sql-tag-raw')
 const seedsTableName = '_seeds'
 // const seedsPath = `${rc.root}/${rc.config.seeds.path ?? 'seeds'}`
 const seedsPath = `${rc.root}/${rc.seedsPath}`
-const nodeEnv = carbon.env.get('NODE_ENV', 'production')
 
-const connectionUrl = nodeEnv === 'production'
-  ? carbon.env.get('DATABASE_URL')
-  : `${carbon.env.get('DATABASE_URL')}_${nodeEnv}`
+const connectionUri = carbon.env.get('DATABASE_URL')
 
-if (!connectionUrl) {
+if (!connectionUri) {
   throw new MissingSettingError(
-    'settings.connectionUrl',
+    'settings.connectionUri',
     'process.env.DATABASE_URL',
   )
 }
@@ -154,7 +151,7 @@ const down = async (
 
 const main = async (): Promise<void> => {
   try {
-    const pool = await createPool(connectionUrl)
+    const pool = await createPool(connectionUri)
     const args = argsParser({ commands: ['up', 'down'] })
     const { command } = args
     const seeds = getSeeds()

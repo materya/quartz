@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 
+import * as carbon from '@materya/carbon'
 import * as fs from 'fs'
 
-import { env, promise } from '@materya/carbon'
 import { createPool, sql } from 'slonik'
 
 import type {
   DatabasePoolConnection,
 } from 'slonik'
+
+import { MissingSettingError } from '../errors'
 
 import { argsParser, rc } from '../tools'
 
@@ -21,12 +23,15 @@ const migrationTableName = '_migrations'
 const defaultName = 'migrations'
 const migrationsPath = `${rc.root}/${rc.config.migrations.path ?? defaultName}`
 
-// const uriString = config.uri ?? process.env.DATABASE_URL
-const uriString = env.get('NODE_ENV', 'production') === 'production'
-  ? env.get('DATABASE_URL')
-  : `${env.get('DATABASE_URL')}_${env.get('NODE_ENV')}`
+// const connectionUri = config.uri ?? carbon.env.get('DATABASE_URL')
+const connectionUri = carbon.env.get('DATABASE_URL')
 
-if (!uriString) throw new Error('Missing DB URI config or env variable.')
+if (!connectionUri) {
+  throw new MissingSettingError(
+    'settings.connectionUri',
+    'process.env.DATABASE_URL',
+  )
+}
 
 const initMigrationsTable = async (
   connection: DatabasePoolConnection,
@@ -113,7 +118,7 @@ const up = async (
   appliedMigrations: Array<string>,
   conn: DatabasePoolConnection,
 ): Promise<void> => {
-  await promise.sequential(migrations, async (migration: string) => {
+  await carbon.promise.sequential(migrations, async (migration: string) => {
     process.stdout.write(`processing ${migration} ... `)
     try {
       if (appliedMigrations.includes(migration)) {
@@ -137,27 +142,30 @@ const down = async (
 ): Promise<void> => {
   const revMigrations = migrations.slice().reverse()
   const revAppliedMigrations = appliedMigrations.slice().reverse()
-  await promise.sequential(revAppliedMigrations, async (migration: string) => {
-    process.stdout.write(`processing ${migration} ... `)
+  await carbon.promise.sequential(
+    revAppliedMigrations,
+    async (migration: string) => {
+      process.stdout.write(`processing ${migration} ... `)
 
-    try {
-      if (!revMigrations.includes(migration)) {
+      try {
+        if (!revMigrations.includes(migration)) {
+          process.stdout.write('ERROR\n')
+          throw new Error(`referenced applied migration ${migration} not found.`)
+        }
+        await processMigration('down', `${migrationsPath}/${migration}`, conn)
+        await deleteMigration(migration, conn)
+        process.stdout.write('DONE\n')
+      } catch (error) {
         process.stdout.write('ERROR\n')
-        throw new Error(`referenced applied migration ${migration} not found.`)
+        throw error
       }
-      await processMigration('down', `${migrationsPath}/${migration}`, conn)
-      await deleteMigration(migration, conn)
-      process.stdout.write('DONE\n')
-    } catch (error) {
-      process.stdout.write('ERROR\n')
-      throw error
-    }
-  })
+    },
+  )
 }
 
 const main = async (): Promise<void> => {
   try {
-    const pool = await createPool(uriString)
+    const pool = await createPool(connectionUri)
     const args = argsParser({ commands: ['up', 'down'] })
     const { command } = args
     const migrations = fs.readdirSync(migrationsPath)
