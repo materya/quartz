@@ -1,7 +1,7 @@
 {
   "name": "@materya/quartz",
   "description": "Set of tools to manage a PostgreSQL database for nodejs.",
-  "version": "1.0.0-alpha.15",
+  "version": "1.0.0-alpha.16",
   "homepage": "https://github.com/materya/quartz",
   "url": "https://github.com/materya/quartz",
   "author": "Sylver <sylver@materya.io>",
