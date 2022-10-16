@@ -37,11 +37,13 @@ const initMigrationsTable = async (
   connection: DatabasePoolConnection,
 ): Promise<void> => {
   try {
-    const existsQueryResult = await connection.query(sql`SELECT EXISTS (
-      SELECT FROM pg_tables
-      WHERE schemaname = 'public'
-      AND tablename = ${migrationTableName}
-    );`)
+    const existsQueryResult = await connection.query(sql`
+      SELECT EXISTS (
+        SELECT FROM pg_tables
+        WHERE schemaname = 'public'
+        AND tablename = ${migrationTableName}
+      )
+    `)
 
     const isTableExist = existsQueryResult.rows[0].exists as unknown as boolean
     if (!isTableExist) {
@@ -50,7 +52,7 @@ const initMigrationsTable = async (
           id SERIAL PRIMARY KEY,
           name TEXT NOT NULL,
           date TIMESTAMP DEFAULT current_timestamp
-        );
+        )
       `)
     }
   } catch (error) {
@@ -66,7 +68,7 @@ const createMigration = async (
     await connection.query(sql`
       INSERT INTO ${sql.identifier([migrationTableName])}
       (name)
-      VALUES (${name});
+      VALUES (${name})
     `)
   } catch (error) {
     process.stderr.write(`unable to insert migration ${name}: ${error}`)
@@ -80,7 +82,7 @@ const deleteMigration = async (
   try {
     await connection.query(sql`
       DELETE FROM ${sql.identifier([migrationTableName])}
-      WHERE name = ${name};
+      WHERE name = ${name}
     `)
   } catch (error) {
     process.stderr.write(`unable to delete migration ${name}: ${error}`)
@@ -91,7 +93,7 @@ const getMigrations = async (
   connection: DatabasePoolConnection,
 ): Promise<Array<string>> => {
   const migrations = await connection.query(sql`
-    SELECT name FROM ${sql.identifier([migrationTableName])};
+    SELECT name FROM ${sql.identifier([migrationTableName])}
   `)
   const names = migrations.rows.map(row => row.name)
   return names as Array<string>
